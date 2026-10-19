@@ -1,10 +1,12 @@
 import pygame
 from pynput.keyboard import Controller, Key
+from pynput.mouse import Controller as Mcontrol
 
 pygame.init()
 pygame.joystick.init()
 
 keyboard = Controller()
+mouse = Mcontrol()
 
 if pygame.joystick.get_count() == 0:
     print("No Controller Found")
@@ -27,7 +29,20 @@ button_map = {
     0: Key.space
 }
 
+Mouse_speed = 900
+
+Mouse_X = 0.0
+Mouse_Y = 0.0
+
 held_keys = {}
+
+def Mouse_move(value):
+    if abs(value) < 0.15:
+        return 0.0
+    if value > 0:
+        return (value - 0.15) / 0.85
+    else:
+        return (value + 0.15) / 0.85
 
 def key_press(key, source):
     if key not in held_keys:
@@ -69,6 +84,11 @@ try:
             elif event.type == pygame.JOYAXISMOTION:
                 axis = event.axis
                 value = event.value
+
+                if axis == 2:
+                    Mouse_X = value
+                elif axis == 3:
+                    Mouse_Y = value
                 
                 direction = None
 
@@ -78,21 +98,25 @@ try:
                     direction = "positive"
 
                 for side in ("negative", "positive"):
-                    mapp = (axis, side)
-                    key = axis_map.get(mapp)
+                    key = axis_map.get((axis, side))
 
                     if key is None:
                         continue
 
                     source = f"axis_{axis}_{side}"
-                    hold_if = direction == side
 
-                    if hold_if:
+                    if direction == side:
                         key_press(key, source)
-                    elif not hold_if:
+                    elif not direction == side:
                         key_release(key, source)
 
-        pygame.time.wait(10)
+        Frame_time = pygame.time.Clock().tick(60) / 1000.0
+
+        X_Move = Mouse_move(Mouse_X) * Mouse_speed * Frame_time
+        Y_Move = Mouse_move(Mouse_Y) * Mouse_speed * Frame_time
+
+        if X_Move or Y_Move:
+            mouse.move(round(X_Move), round(Y_Move))
 
 except KeyboardInterrupt:
     print("quittin test")
