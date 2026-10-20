@@ -1,6 +1,6 @@
 import pygame
 from pynput.keyboard import Controller, Key
-from pynput.mouse import Controller as Mcontrol
+from pynput.mouse import Controller as Mcontrol, Button
 
 pygame.init()
 pygame.joystick.init()
@@ -27,6 +27,11 @@ axis_map = {
 
 button_map = {
     0: Key.space
+}
+
+mouse_map = {
+    2: "left",
+    1: "right"
 }
 
 Mouse_speed = 900
@@ -76,10 +81,25 @@ try:
                     key = button_map[event.button]
                     key_press(key, f"button{event.button}")
 
+                elif event.button in mouse_map:
+                    mouse_click = mouse_map[event.button]
+                    if mouse_click == "left":
+                        mouse.press(Button.left)
+                    elif mouse_click == "right":
+                        mouse.press(Button.right)
+
             elif event.type == pygame.JOYBUTTONUP:
                 if event.button in button_map:
                     key = button_map[event.button]
                     key_release(key, f"button{event.button}")
+
+                elif event.button in mouse_map:
+                    mouse_click = mouse_map[event.button]
+                    if mouse_click == "left":
+                        mouse.release(Button.left)
+                    elif mouse_click == "right":
+                        mouse.release(Button.right)
+
 
             elif event.type == pygame.JOYAXISMOTION:
                 axis = event.axis
