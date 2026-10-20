@@ -34,6 +34,8 @@ mouse_map = {
     1: "right"
 }
 
+held_click = set()
+
 Mouse_speed = 900
 
 Mouse_X = 0.0
@@ -85,8 +87,10 @@ try:
                     mouse_click = mouse_map[event.button]
                     if mouse_click == "left":
                         mouse.press(Button.left)
+                        held_click.add(Button.left)
                     elif mouse_click == "right":
                         mouse.press(Button.right)
+                        held_click.add(Button.right)
 
             elif event.type == pygame.JOYBUTTONUP:
                 if event.button in button_map:
@@ -97,8 +101,10 @@ try:
                     mouse_click = mouse_map[event.button]
                     if mouse_click == "left":
                         mouse.release(Button.left)
+                        held_click.discard(Button.left)
                     elif mouse_click == "right":
                         mouse.release(Button.right)
+                        held_click.discard(Button.right)
 
 
             elif event.type == pygame.JOYAXISMOTION:
@@ -144,5 +150,10 @@ except KeyboardInterrupt:
 finally:
     for key in list(held_keys):
         keyboard.release(key)
+
+    for click in held_click:
+        mouse.release(click)
+
+    held_click.clear()
 
     pygame.quit()
