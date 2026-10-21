@@ -5,3 +5,4 @@ ControlGS let users configure controller buttons to Keyboard keys such as W, A, 
 Current Progess:
 controller_map.py version 1 is done
 key_map.py version 4 is done (added mouse clicks)
+main.py version 2 is done (still have a lot to add)
