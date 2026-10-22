@@ -1,7 +1,9 @@
 import sys
+from pathlib import Path
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QFrame, QHBoxLayout, QGridLayout, QLineEdit
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -44,10 +46,12 @@ class MainWindow(QMainWindow):
 
         mapping_layout = QHBoxLayout(mapping_frame)
         mapping_layout.setContentsMargins(20, 20, 20, 20)
-        mapping_layout.setSpacing(20)
+        mapping_layout.setSpacing(24)
 
         controller_panel = QFrame()
         controller_layout = QVBoxLayout(controller_panel)
+        controller_layout.setContentsMargins(8, 8, 8, 8)
+        controller_layout.setSpacing(10)
 
         controller_title = QLabel("Controller Layout")
         controller_title.setStyleSheet(
@@ -63,26 +67,32 @@ class MainWindow(QMainWindow):
         )
         controller_description.setWordWrap(True)
 
-        self.controller_placeholder = QLabel(
-            "\n\n\n\n\n\n"
-            "Xbox360 Controller\n\n"
-            "Controller diagram will go here"
-        )
-        self.controller_placeholder.setAlignment(
-            Qt.AlignmentFlag.AlignCenter
+        self.controller_image = QLabel()
+        self.controller_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.controller_image.setMinimumSize(250, 200)
+
+        image_path = (
+            Path(__file__).resolve().parent
+            / "assets"
+            / "xbox_controller.png"
         )
 
-        self.controller_placeholder.setStyleSheet("""
+        self.original_controller_pixmap = QPixmap(str(image_path))
+
+        if self.original_controller_pixmap.isNull():
+            self.controller_image.setText("Controller image not found.")
+        else:
+            self.update_controller_image()
+
+        self.controller_image.setStyleSheet("""
             background-color: #252525;
             border: 1px solid #383838;
             border-radius: 10px;
-            color: #AAAAAA;
-            font-size: 15px;
         """)
 
         controller_layout.addWidget(controller_title)
         controller_layout.addWidget(controller_description)
-        controller_layout.addWidget(self.controller_placeholder, 1)
+        controller_layout.addWidget(self.controller_image, 1)
 
         mapping_panel = QFrame()
         button_mapping_layout = QVBoxLayout(mapping_panel)
@@ -150,7 +160,7 @@ class MainWindow(QMainWindow):
         mapping_layout.addWidget(controller_panel, 3)
         mapping_layout.addWidget(mapping_panel, 2)
 
-        main_layout.addWidget(mapping_panel, 1)
+        main_layout.addWidget(mapping_frame, 1)
 
         controls_layout = QHBoxLayout()
 
@@ -183,7 +193,7 @@ class MainWindow(QMainWindow):
                 border-radius: 10px;
             }
 
-            QpushButton {
+            QPushButton {
                 background-color: #303030;
                 border: 1px solid #454545; 
                 border-radius: 7px;
@@ -201,6 +211,25 @@ class MainWindow(QMainWindow):
             }
 
         """)
+
+    def update_controller_image(self):
+        if self.original_controller_pixmap.isNull():
+            return
+
+        current_size = self.controller_image.size()
+    
+        scaled_pixmap = self.original_controller_pixmap.scaled(
+            int(current_size.width() * 0.85),
+            int(current_size.height() * 0.85),
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+    
+        self.controller_image.setPixmap(scaled_pixmap)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.update_controller_image()
 
     def start_mapping(self):
         self.status_label.setText("Mapping started")
