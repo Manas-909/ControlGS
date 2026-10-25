@@ -44,12 +44,12 @@ Mouse_Y = 0.0
 held_keys = {}
 
 def Mouse_move(value):
-    if abs(value) < 0.15:
+    if abs(value) < 0.1:
         return 0.0
     if value > 0:
-        return (value - 0.15) / 0.85
+        return (value - 0.1) / 0.80
     else:
-        return (value + 0.15) / 0.85
+        return (value + 0.1) / 0.80
 
 def key_press(key, source):
     if key not in held_keys:
